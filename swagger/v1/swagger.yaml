@@ -1,0 +1,514 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API V1",
+    "version": "v1"
+  },
+  "basePath": "/api/v1",
+  "servers": [
+    {
+      "url": "http://{defaultHost}",
+      "variables": {
+        "defaultHost": {
+          "default": "localhost:3000/api/v1"
+        }
+      }
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "jwt": {
+        "type": "apiKey",
+        "description": "Bearer ey....",
+        "name": "Authorization",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "error_object": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Message"
+          }
+        }
+      },
+      "errors_object": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "$ref": "#/components/schemas/errors_map"
+          }
+        }
+      },
+      "errors_map": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "login": {
+        "type": "object",
+        "properties": {
+          "session": {
+            "$ref": "#/components/schemas/user_field"
+          }
+        },
+        "required": [
+          "session"
+        ]
+      },
+      "new_user": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/user_field"
+          }
+        },
+        "required": [
+          "user"
+        ]
+      },
+      "user_field": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "example": "myemail@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password",
+            "example": "Password1234"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "user": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "example": "myemail@example.com"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "new_user_ingredient": {
+        "type": "object",
+        "properties": {
+          "user_ingredient": {
+            "type": "object",
+            "properties": {
+              "ingredient_id": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "ingredient_id"
+            ]
+          }
+        },
+        "required": [
+          "user_ingredient"
+        ]
+      },
+      "recipe": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string",
+            "description": "Recipe title and searchable"
+          },
+          "cook_time": {
+            "type": "integer"
+          },
+          "prep_time": {
+            "type": "integer"
+          },
+          "ratings": {
+            "type": "number"
+          },
+          "cuisine": {
+            "type": "string",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "description": "Category"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ingredient"
+            }
+          },
+          "author": {
+            "$ref": "#/components/schemas/author"
+          }
+        }
+      },
+      "author": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ingredient": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/ingredients/": {
+      "get": {
+        "summary": "List of ingredients with filters",
+        "tags": [
+          "Ingredients API"
+        ],
+        "security": [
+          {
+            "jwt": [
+
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns the filtered ingredients when passing search query"
+          }
+        },
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/recipes/": {
+      "get": {
+        "summary": "List of Recipes with filters",
+        "tags": [
+          "Recipes API"
+        ],
+        "security": [
+          {
+            "jwt": [
+
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns the filtered recipes when passing search query"
+          }
+        },
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Authenticate User",
+        "tags": [
+          "Authentication API"
+        ],
+        "parameters": [
+
+        ],
+        "responses": {
+          "200": {
+            "description": "authenticates and returns a new token"
+          },
+          "400": {
+            "description": "returns bad when password incorrect"
+          },
+          "422": {
+            "description": "returns validation when incorrect params"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/login"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/recipe_recommendations/": {
+      "get": {
+        "summary": "List of recommended recipes when missing user_ingredients",
+        "tags": [
+          "User recipe recommendations API"
+        ],
+        "security": [
+          {
+            "jwt": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns no record"
+          }
+        }
+      }
+    },
+    "/users/{user_id}/user_ingredients/": {
+      "get": {
+        "summary": "List of Ingredients",
+        "tags": [
+          "User Ingredients API"
+        ],
+        "security": [
+          {
+            "jwt": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns all ingredients for a given user"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add ingredient to user's list",
+        "tags": [
+          "User Ingredients API"
+        ],
+        "security": [
+          {
+            "jwt": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "adds the ingredient & retuns all ingredient_ids"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/new_user_ingredient"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/user_ingredients/{id}": {
+      "delete": {
+        "summary": "Remove ingredient from user list",
+        "tags": [
+          "User Ingredients API"
+        ],
+        "security": [
+          {
+            "jwt": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "remove the given ingredient id"
+          }
+        }
+      }
+    },
+    "/users/": {
+      "post": {
+        "summary": "Create a user",
+        "tags": [
+          "Users API"
+        ],
+        "parameters": [
+
+        ],
+        "responses": {
+          "200": {
+            "description": "Created a user"
+          },
+          "422": {
+            "description": "Validation failed for request"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/new_user"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "patch": {
+        "summary": "Update a user",
+        "tags": [
+          "Users API"
+        ],
+        "security": [
+          {
+            "jwt": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated a user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "$ref": "#/components/schemas/user"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed for request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "$ref": "#/components/schemas/errors_object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/new_user"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
