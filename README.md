@@ -44,7 +44,7 @@ Btw I am a good believer in the single responsibility principle & prefer to have
 
 ## API Documentation
 
-- http://localhost:3000/api-docs/index.html
+- https://recipes-apis.herokuapp.com/api-docs/index.html
 
 ## Deployment instructions
 
