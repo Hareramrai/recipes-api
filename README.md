@@ -8,6 +8,10 @@ API Application deployed at https://recipes-apis.herokuapp.com/.
 
 React Application deployed at https://recipes-ui.herokuapp.com/.
 
+Sample user credentails at heroku: 
+Email: admin@example.com
+Password: 12345678
+
 ## System dependencies
 
 1. `Ruby 2.7.2`
